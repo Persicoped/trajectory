@@ -33,6 +33,7 @@ import * as giftReview from "@/app/v1/contributions/[id]/reviews/route";
 import * as resultReview from "@/app/v1/test-results/[id]/reviews/route";
 import * as spacesRoute from "@/app/v1/spaces/route";
 import * as spaceRoute from "@/app/v1/space/route";
+import * as spaceCheck from "@/app/v1/spaces/check/route";
 
 type Handler = (req: Request, ctx: { params: Promise<any> }) => Promise<Response>;
 
@@ -359,6 +360,11 @@ describe("company spaces", () => {
     // The base domain itself has no space, so the token decides.
     expect((await call(meRoute.GET, T.greta, {}, undefined, "GET", "trajectory.test")).status).toBe(200);
     expect((await call(spaceRoute.GET, T.greta, {}, undefined, "GET", "globex.trajectory.test")).json.url).toBe("https://globex.trajectory.test");
+    const check = async (domain: string) => (await spaceCheck.GET(new Request(`http://test.local/v1/spaces/check?domain=${domain}`))).status;
+    expect(await check("globex.trajectory.test")).toBe(200);
+    expect(await check("trajectory.test")).toBe(200);
+    expect(await check("nobody.trajectory.test")).toBe(404);
+    expect(await check("globex.other.test")).toBe(404);
     delete process.env.TRAJECTORY_BASE_DOMAIN;
   });
 });
