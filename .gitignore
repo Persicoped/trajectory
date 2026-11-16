@@ -1,0 +1,18 @@
+# Private design notes. Never publish these.
+.obsidian/
+*.canvas
+Career Ladder.md
+.DS_Store
+.env
+.env.*
+!.env.example
+CLAUDE.md
+.claude/
+.mcp.json
+
+# Build output and local data
+node_modules/
+.next/
+data/
+next-env.d.ts
+*.tsbuildinfo
