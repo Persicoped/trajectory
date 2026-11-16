@@ -1,0 +1,56 @@
+# Service contract for the hosted Trajectory install at trajectory.periscoped.io.
+#
+# The host reads this file from the commit it is about to deploy, builds the
+# image from the Dockerfile in this repo, starts it, and runs the health checks
+# below. If a check fails, the host puts the previous version back.
+#
+# This repo is public. Nothing here is private: where the app runs, which port
+# it uses on the host, and how traffic reaches it are kept by the host, not here.
+# A self-hosted install can ignore this file.
+
+apiVersion: edge/v1
+name: trajectory
+
+source:
+  repo: https://github.com/Persicoped/trajectory
+  ref: main
+
+build:
+  mode: on-peer               # built on the host from this repo, not pulled from a registry
+  project: trajectory         # compose project name on the host
+  dockerfile: Dockerfile
+  services: [app]
+
+app:
+  port: 4700                  # the port inside the container
+  env:
+    TRAJECTORY_DB: /data/trajectory.db
+    TRAJECTORY_BASE_DOMAIN: trajectory.periscoped.io
+    TRAJECTORY_SIGNUP: open
+
+data:
+  # One SQLite file. The host keeps /data on a disk that outlives every deploy.
+  # A deploy never removes it. Migrations run when the container starts.
+  mount: /data
+  file: /data/trajectory.db
+
+secrets:
+  file: null                  # the app needs no secret to run
+
+sites:
+  # The base domain gets a certificate as soon as it is published.
+  - hosts: [trajectory.periscoped.io]
+
+  # Each company space answers on its own subdomain. Its certificate is made on
+  # the first visit, and only after the app says the space exists.
+  - hosts: ["*.trajectory.periscoped.io"]
+    tls: on_demand
+    ask: /v1/spaces/check
+
+health:
+  # The app answers, and asks for a token.
+  - url: https://trajectory.periscoped.io/v1/me
+    expect: [401]
+  # The host name check that guards subdomain certificates works.
+  - url: https://trajectory.periscoped.io/v1/spaces/check?domain=trajectory.periscoped.io
+    expect: [200]
