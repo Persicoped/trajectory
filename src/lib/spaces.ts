@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "../db/client";
-import { people, spaces } from "../db/schema";
+import { credentials, people, spaces } from "../db/schema";
+import { hashPassword, password } from "./passwords";
 import { createToken } from "./tokens";
 
 // Names that a space cannot take, because the product uses them.
@@ -17,6 +18,8 @@ export const signUp = z.strictObject({
   slug,
   ownerName: z.string().min(1),
   ownerEmail: z.email(),
+  // For sign-in on the web. A script that uses only the token can leave it out.
+  ownerPassword: password.optional(),
 });
 
 export class SlugTaken extends Error {}
@@ -32,6 +35,9 @@ export function createSpace(input: z.infer<typeof signUp>) {
     .values({ spaceId: space.id, name: input.ownerName, email: input.ownerEmail, role: "owner" })
     .returning()
     .get();
+  if (input.ownerPassword) {
+    db.insert(credentials).values({ personId: owner.id, passwordHash: hashPassword(input.ownerPassword) }).run();
+  }
   return { space, owner, token: createToken(owner.id, "first token") };
 }
 

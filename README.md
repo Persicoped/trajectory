@@ -29,7 +29,7 @@ The design follows three ideas from research on what motivates people:
 
 ## Headless by design
 
-Trajectory has no screen of its own. It is a REST API with an MCP server on top, so you can run it from the AI tools your team already uses.
+Trajectory is a REST API with an MCP server on top, so you can run it from the AI tools your team already uses. A small website explains the product, lets a new company sign up, and lets people sign in to read their ladder and their people. All changes go through the API.
 
 - Build your own pay bands and levels.
 - Use the ready-made AI developer ladder, or write a ladder for any job.
@@ -104,4 +104,4 @@ pnpm db:token your-company person@example.com "laptop"
 
 ## Status
 
-Early build. The REST API and the MCP server work with token sign-in. Sign-in through an identity provider is not built yet.
+Early build. The REST API and the MCP server work with token sign-in. The website works with email and password sign-in. Sign-in through an identity provider is not built yet.

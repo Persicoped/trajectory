@@ -8,6 +8,13 @@
       "when": 1794798700562,
       "tag": "0000_safe_triathlon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794807344392,
+      "tag": "0001_massive_deathbird",
+      "breakpoints": true
     }
   ]
 }

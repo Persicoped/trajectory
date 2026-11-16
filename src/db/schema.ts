@@ -98,6 +98,14 @@ export const people = sqliteTable(
   (t) => [uniqueIndex("people_space_email").on(t.spaceId, t.email)],
 );
 
+// A password for web sign-in. It is in its own table, so a person row never
+// carries it and no reply can hold it by mistake.
+export const credentials = sqliteTable("credentials", {
+  personId: text("person_id").primaryKey().references(() => people.id),
+  passwordHash: text("password_hash").notNull(),
+  updatedAt: stamp("updated_at"),
+});
+
 export const apiTokens = sqliteTable("api_tokens", {
   id: id(),
   personId: text("person_id").notNull().references(() => people.id),

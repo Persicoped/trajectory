@@ -46,7 +46,11 @@ One install serves many companies. Each company has a space, and each space has 
 | `GET /v1/space` | Read your own space | Member, Manager, Owner |
 | `PATCH /v1/space` | Change the name of your space | Owner |
 
-A sign-up body has `name`, `slug`, `owner_name` and `owner_email`. The slug has 3 to 32 lowercase letters, digits or hyphens. Set `TRAJECTORY_SIGNUP=closed` to stop sign-up.
+A sign-up body has `name`, `slug`, `owner_name` and `owner_email`. It can also have `owner_password` (10 characters or more) for sign-in on the website. The slug has 3 to 32 lowercase letters, digits or hyphens. Set `TRAJECTORY_SIGNUP=closed` to stop sign-up.
+
+## The website
+
+The website is for reading. It has a landing page (`/`), sign-up (`/signup`), sign-in (`/login`, or `/login/key` with an access key) and one company page (`/app`). The company page shows the ladder, the people and your own place, as the API allows for your role. The session token is in a cookie that scripts cannot read. The pages send it to the API as a bearer token on the server, and the API itself never reads a cookie.
 
 ## Paths
 
