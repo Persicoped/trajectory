@@ -106,6 +106,18 @@ export const credentials = sqliteTable("credentials", {
   updatedAt: stamp("updated_at"),
 });
 
+// A one-time link that lets a person choose their password. The Owner makes
+// it for a new person, or a person makes it for their own account. The
+// database keeps only a hash of the link's secret.
+export const passwordLinks = sqliteTable("password_links", {
+  id: id(),
+  personId: text("person_id").notNull().references(() => people.id),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: text("expires_at").notNull(),
+  usedAt: text("used_at"),
+  createdAt: stamp("created_at"),
+});
+
 export const apiTokens = sqliteTable("api_tokens", {
   id: id(),
   personId: text("person_id").notNull().references(() => people.id),

@@ -50,7 +50,7 @@ A sign-up body has `name`, `slug`, `owner_name` and `owner_email`. It can also h
 
 ## The website
 
-The website is for reading. It has a landing page (`/`), sign-up (`/signup`), sign-in (`/login`, or `/login/key` with an access key) and one company page (`/app`). The company page shows the ladder, the people and your own place, as the API allows for your role. The session token is in a cookie that scripts cannot read. The pages send it to the API as a bearer token on the server, and the API itself never reads a cookie.
+The website is for reading. It has a landing page (`/`), sign-up (`/signup`), sign-in with email and password (`/login`, or `/login/key` with an access key), a page to choose a password from a one-time link (`/set-password`) and one company page (`/app`). The company page shows the ladder, the people and your own place, as the API allows for your role. The session token is in a cookie that scripts cannot read. The pages send it to the API as a bearer token on the server, and the API itself never reads a cookie.
 
 ## Paths
 
@@ -93,6 +93,7 @@ Each ladder object also has a `DELETE` path for a manager. `DELETE` works only w
 | `GET /v1/people/{id}` | Read a person | Self, Manager, Owner |
 | `PATCH /v1/people/{id}` | Change a person's name or email | Owner |
 | `PUT /v1/people/{id}/role` | Give or remove the Manager role | Owner, not on own record |
+| `POST /v1/people/{id}/password-link` | Make a one-time link that lets the person choose their password | Owner, or the person for their own account |
 | `POST /v1/people/{id}/deactivation` | Stop a person's access. The record stays. | Owner, not on own record |
 
 ### Progress
@@ -159,6 +160,7 @@ The MCP server is a thin layer. Each tool calls the API with the caller's own to
 | `show_person` | `GET /v1/people/{id}`, with progress, certifications and promotions |
 | `add_person` | `POST /v1/people` |
 | `set_role` | `PUT /v1/people/{id}/role` |
+| `password_link` | `POST /v1/people/{id}/password-link` |
 | `review` | `POST .../reviews` on a work item, a contribution or a test result |
 | `promote` | `POST /v1/people/{id}/promotions` |
 | `build_ladder` | `POST /v1/ladders` |

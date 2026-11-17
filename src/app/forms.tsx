@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { keySignInAction, setPasswordAction, signInAction, signUpAction, type FormState } from "./actions";
+import { keySignInAction, linkPasswordAction, setPasswordAction, signInAction, signUpAction, type FormState } from "./actions";
 
 const start: FormState = { error: null, values: {} };
 
@@ -82,6 +82,22 @@ export function SetPasswordForm() {
       <div className="hint">10 characters or more.</div>
       <button className="btn plain" type="submit" disabled={busy} style={{ marginTop: 12 }}>
         {busy ? "Saving..." : "Save password"}
+      </button>
+    </form>
+  );
+}
+
+export function LinkPasswordForm({ token }: { token: string }) {
+  const [state, action, busy] = useActionState(linkPasswordAction, start);
+  return (
+    <form action={action}>
+      {state.error && <p className="error" role="alert">{state.error}</p>}
+      <input type="hidden" name="token" value={token} />
+      <label htmlFor="linkPassword">New password</label>
+      <input id="linkPassword" name="password" type="password" required minLength={10} autoComplete="new-password" />
+      <div className="hint">10 characters or more.</div>
+      <button className="btn" type="submit" disabled={busy}>
+        {busy ? "Saving..." : "Save password and sign in"}
       </button>
     </form>
   );

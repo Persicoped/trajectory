@@ -34,6 +34,9 @@ import * as resultReview from "@/app/v1/test-results/[id]/reviews/route";
 import * as spacesRoute from "@/app/v1/spaces/route";
 import * as spaceRoute from "@/app/v1/space/route";
 import * as spaceCheck from "@/app/v1/spaces/check/route";
+import * as passwordLink from "@/app/v1/people/[id]/password-link/route";
+import { passwordLinkOwner, redeemPasswordLink } from "@/lib/password-links";
+import { signIn } from "@/lib/signin";
 
 type Handler = (req: Request, ctx: { params: Promise<any> }) => Promise<Response>;
 
@@ -366,5 +369,39 @@ describe("company spaces", () => {
     expect(await check("nobody.trajectory.test")).toBe(404);
     expect(await check("globex.other.test")).toBe(404);
     delete process.env.TRAJECTORY_BASE_DOMAIN;
+  });
+});
+
+describe("passwords", () => {
+  const secretOf = (url: string) => /token=([0-9a-f]+)/.exec(url)![1];
+
+  it("P35: the owner makes a set-password link for a person, and it works one time", async () => {
+    const res = await call(passwordLink.POST, T.owner, { id: ID.alice }, {});
+    expect(res.status).toBe(201);
+    const secret = secretOf(res.json.url);
+    expect(passwordLinkOwner(secret)?.email).toBe("alice@example.com");
+    expect(signIn("acme", "alice@example.com", "a-good-password")).toBe(null);
+    const session = redeemPasswordLink(secret, "a-good-password");
+    expect((await call(meRoute.GET, session)).json.email).toBe("alice@example.com");
+    expect(redeemPasswordLink(secret, "another-password")).toBe(null);
+    expect(passwordLinkOwner(secret)).toBe(null);
+    const again = signIn("acme", "alice@example.com", "a-good-password");
+    expect((await call(meRoute.GET, again)).json.email).toBe("alice@example.com");
+    expect(signIn("acme", "alice@example.com", "wrong-password")).toBe(null);
+    expect(signIn("globex", "alice@example.com", "a-good-password")).toBe(null);
+  });
+
+  it("P35: a person makes a link for their own account only", async () => {
+    expect((await call(passwordLink.POST, T.alice, { id: ID.alice }, {})).status).toBe(201);
+    expect((await call(passwordLink.POST, T.alice, { id: ID.manager }, {})).status).toBe(404);
+    expect((await call(passwordLink.POST, T.manager, { id: ID.alice }, {})).status).toBe(403);
+    expect((await call(passwordLink.POST, T.greta, { id: ID.alice }, {})).status).toBe(404);
+  });
+
+  it("no reply holds a password", async () => {
+    const me = await call(meRoute.GET, T.alice);
+    expect(JSON.stringify(me.json)).not.toContain("password");
+    const list = await call(peopleRoute.GET, T.owner);
+    expect(JSON.stringify(list.json)).not.toContain("password");
   });
 });

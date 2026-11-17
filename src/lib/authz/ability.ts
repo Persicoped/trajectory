@@ -37,7 +37,8 @@ export type Action =
   | "mark-topic"
   | "revoke"
   | "deactivate"
-  | "assign-role";
+  | "assign-role"
+  | "make-password-link";
 
 // The fields a rule may test.
 export type Row = {
@@ -83,6 +84,8 @@ const GRANTS: Record<Role, (b: Builder, me: Me) => void> = {
     }
     // P13: read your own records.
     can(["read", "read-pay"], "person", { id: me.personId });
+    // P35: make a set-password link for your own account.
+    can("make-password-link", "person", { id: me.personId });
     can("read", [...PERSON_SUBJECTS], mine);
     // P15: mark topics on your own active progress.
     can("mark-topic", "progress", { ...mine, status: "active" });
@@ -109,6 +112,8 @@ const GRANTS: Record<Role, (b: Builder, me: Me) => void> = {
     can("update", "space", { id: me.spaceId });
     // P25: add people and change their details.
     can(["create", "update"], "person");
+    // P35: make a set-password link for any person of the space.
+    can("make-password-link", "person");
     // P25, P26: the Owner cannot deactivate or change the role of the Owner.
     can(["deactivate", "assign-role"], "person", { id: { $ne: me.personId } });
   },

@@ -196,6 +196,13 @@ export function buildServer(api: Api): McpServer {
     api("PUT", `/v1/people/${person_id}/role`, { role }),
   );
 
+  tool(
+    "password_link",
+    "Make a one-time link that lets a person choose their password for the website. The Owner can do this for any person. A person can do it for their own account. Give the link to the person. It works one time and ends after 3 days.",
+    { person_id: id },
+    ({ person_id }) => api("POST", `/v1/people/${person_id}/password-link`),
+  );
+
   // ---- Reviews and promotions ----
 
   const reviewPath = { work_item: "work-items", contribution: "contributions", test_result: "test-results" } as const;

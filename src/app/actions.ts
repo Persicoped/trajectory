@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { password } from "@/lib/passwords";
 import { getActor } from "@/lib/authz/actor";
+import { redeemPasswordLink } from "@/lib/password-links";
 import { setPassword, signIn, signOut } from "@/lib/signin";
 import { createToken } from "@/lib/tokens";
 import { createSpace, signUp, SlugTaken } from "@/lib/spaces";
@@ -73,6 +74,16 @@ export async function setPasswordAction(_: FormState, form: FormData): Promise<F
   if (!input.success) return { error: "Password: " + input.error.issues[0].message, values: {} };
   setPassword(actor.personId, input.data);
   return { error: null, values: { done: "yes" } };
+}
+
+// Choose a password with a one-time link, then go to the company page.
+export async function linkPasswordAction(_: FormState, form: FormData): Promise<FormState> {
+  const input = password.safeParse(String(form.get("password") ?? ""));
+  if (!input.success) return { error: "Password: " + input.error.issues[0].message, values: {} };
+  const token = redeemPasswordLink(text(form, "token"), input.data);
+  if (!token) return { error: "This link was used before, or it is too old. Ask for a new one.", values: {} };
+  await startSession(token);
+  redirect("/app");
 }
 
 export async function signOutAction(): Promise<void> {

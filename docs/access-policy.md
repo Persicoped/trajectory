@@ -111,6 +111,7 @@ Notes on the roles:
 | P31 | Each space has its own subdomain. On a space subdomain, only the people of that space can sign in. |
 | P32 | Every person may read their own space: its name and its subdomain name. |
 | P33 | Only the Owner may change the name of the space. The subdomain name does not change. |
+| P35 | A person signs in on the website with their email and a password. A person gets a password through a one-time link. The Owner may make that link for any person of the space, and a person may make it for their own account. No reply from the system ever holds a password. |
 | P34 | Sign-up is the one request that needs no sign-in. A new user makes a space and becomes its Owner. An install can close sign-up. |
 
 ## Deny cases

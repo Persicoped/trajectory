@@ -31,7 +31,7 @@ async function main() {
   const member = await connect(process.env.MEMBER_TOKEN!);
 
   const tools = await owner.client.listTools();
-  check("the server lists its tools", tools.tools.length === 22, `got ${tools.tools.length}`);
+  check("the server lists its tools", tools.tools.length === 23, `got ${tools.tools.length}`);
 
   const me = await owner.call("my_status");
   check("owner: my_status", me.json?.role === "owner", me.text);
